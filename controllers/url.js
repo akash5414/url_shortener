@@ -1,15 +1,15 @@
 const shortid = require('shortid');
 const Url = require('../models/url');
 async function handleGenerateNewShortUrl(req, res){
+    const body = req.body;
+    if(!body.url) return res.status(400).json({error: 'url is required'});
     const shortUrl = shortid();
-    const url = req.body.url;
-    if(!url) return res.status(400).json({error: 'url is required'});
     await Url.create({
         shortId: shortUrl,
-        redirectUrl: url,
+        redirectUrl: body.url,
         visitedHistorty: [],
     });
-    return res.json({ shortId: shortUrl});
+    return res.render('home', { id : shortUrl });
 };
 
 async function handleGetAnalytics(req, res){
@@ -21,7 +21,23 @@ async function handleGetAnalytics(req, res){
     })
 }
 
+async function handleRedirect(req, res){
+    const shortId = req.params.shortId;
+    const result = await Url.findOneAndUpdate(
+        { shortId },
+        {
+            $push: {
+                visitHistory: {
+                    timeStamp: Date.now(),
+                }
+            }
+        }
+    )
+    res.redirect(result.redirectUrl);
+}
+
 module.exports = {
     handleGenerateNewShortUrl,
-    handleGetAnalytics
+    handleGetAnalytics,
+    handleRedirect,
 };

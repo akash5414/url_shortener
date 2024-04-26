@@ -6,25 +6,6 @@
     <title>Document</title>
   </head>
   <body>
-    <% if (locals.urls) { %>
-    <table>
-      <thead>
-        <th>S. No.</th>
-        <th>ShortId</th>
-        <th>Redirect</th>
-        <th>Clicks</th>
-      </thead>
-      <tbody>
-        <% urls.forEach((url, index) => { %>
-        <tr>
-          <td><%= index+1 %></td>
-          <td><%= url.shortId %></td>
-          <td><%= url.redirectUrl %></td>
-          <td><%= url.visitHistory.length %></td>
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
-    <% } %>
+    
   </body>
 </html>

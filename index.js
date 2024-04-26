@@ -1,11 +1,18 @@
-const express = require("express");
-const { connectToMongoDB } = require("./connect");
-const urlRoute = require("./routes/url");
-const Url = require("./models/url");
 const dotenv = require("dotenv").config();
-const app = express();
 const path = require("path");
+const cookieParser = require("cookie-parser");
+
+const express = require("express");
+const app = express();
+
+const { connectToMongoDB } = require("./connect");
+
+const Url = require("./models/url");
+
+const urlRoute = require("./routes/url");
 const staticRoute = require('./routes/staticRouter');
+const userRoute = require("./routes/user");
+const { restrictToLoggedinUserOnly , checkAuth } = require("./middlewares/auth")
 
 connectToMongoDB(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
@@ -16,9 +23,11 @@ app.set("views", path.resolve("./views"));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false}));
+app.use(cookieParser());
 
-app.use("/url", urlRoute);
-app.use("/", staticRoute);
+app.use("/url", checkAuth, urlRoute);
+app.use("/", checkAuth, staticRoute);
+app.use("/user", userRoute);
 
 
 app.listen(process.env.PORT, () =>

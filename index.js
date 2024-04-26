@@ -25,7 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false}));
 app.use(cookieParser());
 
-app.use("/url", checkAuth, urlRoute);
+app.use("/url", restrictToLoggedinUserOnly, urlRoute);
 app.use("/", checkAuth, staticRoute);
 app.use("/user", userRoute);
 

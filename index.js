@@ -10,9 +10,9 @@ const { connectToMongoDB } = require("./connect");
 const Url = require("./models/url");
 
 const urlRoute = require("./routes/url");
-const staticRoute = require('./routes/staticRouter');
+const staticRoute = require("./routes/staticRouter");
 const userRoute = require("./routes/user");
-const { restrictToLoggedinUserOnly , checkAuth } = require("./middlewares/auth")
+const { checkForAuthentication, restrictTo } = require("./middlewares/auth");
 
 connectToMongoDB(process.env.MONGODB_URI)
   .then(() => console.log("Connected to MongoDB"))
@@ -22,13 +22,13 @@ app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: false}));
+app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(checkForAuthentication);
 
-app.use("/url", restrictToLoggedinUserOnly, urlRoute);
-app.use("/", checkAuth, staticRoute);
+app.use("/url", restrictTo(['ADMIN', "NORMAL"]), urlRoute);
+app.use("/", staticRoute);
 app.use("/user", userRoute);
-
 
 app.listen(process.env.PORT, () =>
   console.log(`listening on port: ${process.env.PORT}`)
